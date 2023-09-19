@@ -1,8 +1,21 @@
 const ElakolijeSaleItem = require("../models/ElakolijeSaleItem");
+const { Op } = require('sequelize');
 
-const getAllItemsOnSale = async (req, res) => {
+const getItemsOnSale = async (req, res) => {
+  const { search } = req.query;
+  let whereClause = {};
+
+  if (search) {
+    whereClause = {
+      name: {
+        [Op.iLike]: `%${search}%`,
+      },
+    };
+  }
+
   try {
     const saleItems = await ElakolijeSaleItem.findAll({
+      where: whereClause,
       order: [["id", "ASC"]],
       limit: 100,
     });
@@ -14,5 +27,5 @@ const getAllItemsOnSale = async (req, res) => {
 };
 
 module.exports = {
-  getAllItemsOnSale,
+  getItemsOnSale,
 };
