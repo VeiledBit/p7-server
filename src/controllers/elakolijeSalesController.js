@@ -2,8 +2,9 @@ const ElakolijeSaleItem = require("../models/ElakolijeSaleItem");
 const { Op } = require('sequelize');
 
 const getItemsOnSale = async (req, res) => {
-  const { search } = req.query;
+  const { search, sort } = req.query;
   let whereClause = {};
+  let orderClause = [["category", "ASC"]];
 
   if (search) {
     whereClause = {
@@ -13,10 +14,22 @@ const getItemsOnSale = async (req, res) => {
     };
   }
 
+  if (sort) {
+    let sortAttribute = "category";
+    let order = "ASC";
+    if (sort === "discountHighest") {
+      sortAttribute = "discount_percentage";
+      order = "DESC"
+    } else if (sort === "discountLowest") {
+      sortAttribute = "discount_percentage";
+    }
+    orderClause = [[sortAttribute, order]];
+  }
+
   try {
     const saleItems = await ElakolijeSaleItem.findAll({
       where: whereClause,
-      order: [["id", "ASC"]],
+      order: orderClause,
       limit: 100,
     });
     res.json(saleItems);
