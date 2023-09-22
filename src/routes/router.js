@@ -6,6 +6,6 @@ const elakolijeController = require("../controllers/elakolijeSalesController");
 
 router.get("/saleItems", salesController.getItems);
 router.get("/saleItems/maxi", maxiController.getItemsOnSale);
-router.get("/saleItems/uni", elakolijeController.getItemsOnSale);
+router.get("/saleItems/elakolije", elakolijeController.getItemsOnSale);
 
 module.exports = router;
