@@ -1,10 +1,11 @@
 const ElakolijeSaleItem = require("../models/ElakolijeSaleItem");
-const { Op } = require('sequelize');
+const sequelize = require("../config/postgre");
+const { Op } = require("sequelize");
 
 const getItemsOnSale = async (req, res) => {
-  const { search, sort } = req.query;
+  const { search, sort, categories } = req.query;
   let whereClause = {};
-  let orderClause = [["category", "ASC"]];
+  let orderClause = [["category_id", "ASC"]];
 
   if (search) {
     whereClause = {
@@ -14,12 +15,19 @@ const getItemsOnSale = async (req, res) => {
     };
   }
 
+  if (categories) {
+    categoryArray = categories.split("|");
+    whereClause.category_name = {
+      [Op.in]: categoryArray,
+    };
+  }
+
   if (sort) {
-    let sortAttribute = "category";
+    let sortAttribute = "category_id";
     let order = "ASC";
     if (sort === "discountHighest") {
       sortAttribute = "discount_percentage";
-      order = "DESC"
+      order = "DESC";
     } else if (sort === "discountLowest") {
       sortAttribute = "discount_percentage";
     }
@@ -30,7 +38,7 @@ const getItemsOnSale = async (req, res) => {
     const saleItems = await ElakolijeSaleItem.findAll({
       where: whereClause,
       order: orderClause,
-      limit: 100,
+      limit: 96,
     });
     res.json(saleItems);
   } catch (error) {
@@ -39,6 +47,23 @@ const getItemsOnSale = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const distinctCategories = await sequelize.query(
+      'SELECT DISTINCT "category_id", "category_name" FROM "elakolijesales" ORDER BY "category_id";',
+      {
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+    const categoryNames = distinctCategories.map((item) => item.category_name);
+    res.json(categoryNames);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
+  getCategories,
   getItemsOnSale,
 };

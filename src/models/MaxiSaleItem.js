@@ -13,7 +13,10 @@ const MaxiSaleItem = sequelize.define(
     name: {
       type: Sequelize.STRING,
     },
-    category: {
+    category_id: {
+      type: Sequelize.INTEGER,
+    },
+    category_name: {
       type: Sequelize.STRING,
     },
     price_sale: {
