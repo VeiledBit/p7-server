@@ -4,6 +4,9 @@ const { Op } = require("sequelize");
 
 const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 90;
+  const offset = (page - 1) * limit
   let whereClause = {};
   let orderClause = [["category_id", "ASC"]];
 
@@ -38,7 +41,8 @@ const getItemsOnSale = async (req, res) => {
     const saleItems = await ElakolijeSaleItem.findAll({
       where: whereClause,
       order: orderClause,
-      limit: 96,
+      limit: limit,
+      offset: offset,
     });
     res.json(saleItems);
   } catch (error) {

@@ -4,9 +4,12 @@ const { Op } = require("sequelize");
 
 const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 90;
+  const offset = (page - 1) * limit
   let whereClause = {};
   let orderClause = [
-    ["id", "ASC"],
+    ["id", "ASC"], // Maintain canonical order
     ["category_id", "ASC"],
   ];
 
@@ -35,6 +38,7 @@ const getItemsOnSale = async (req, res) => {
       sortAttribute = "discount_percentage";
     }
     orderClause = [
+      ["id", "ASC"], // Maintain canonical order
       [sortAttribute, order],
     ];
   }
@@ -43,6 +47,8 @@ const getItemsOnSale = async (req, res) => {
     const saleItems = await MaxiSaleItem.findAll({
       where: whereClause,
       order: orderClause,
+      limit: limit,
+      offset: offset
     });
     res.json(saleItems);
   } catch (error) {
