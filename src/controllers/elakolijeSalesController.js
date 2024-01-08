@@ -6,9 +6,9 @@ const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
   const page = parseInt(req.query.page) || 1;
   const limit = 90;
-  const offset = (page - 1) * limit
+  const offset = (page - 1) * limit;
   let whereClause = {};
-  let orderClause = [["category_id", "ASC"]];
+  let orderClause = [];
 
   if (search) {
     whereClause = {
@@ -25,16 +25,21 @@ const getItemsOnSale = async (req, res) => {
     };
   }
 
+  const sortAttributes = {
+    discountHighest: [["discount_percentage", "DESC"]],
+    discountLowest: [["discount_percentage", "ASC"]],
+    priceLowest: [["price_sale", "ASC"]],
+    priceHighest: [["price_sale", "DESC"]],
+    pricePerUnitLowest: [["price_per_unit_sale", "ASC"]],
+    pricePerUnitHighest: [["price_per_unit_sale", "DESC"]],
+    category: [
+      ["category_id", "ASC"],
+      ["id", "ASC"],
+    ],
+  };
+
   if (sort) {
-    let sortAttribute = "category_id";
-    let order = "ASC";
-    if (sort === "discountHighest") {
-      sortAttribute = "discount_percentage";
-      order = "DESC";
-    } else if (sort === "discountLowest") {
-      sortAttribute = "discount_percentage";
-    }
-    orderClause = [[sortAttribute, order]];
+    orderClause = sortAttributes[sort];
   }
 
   try {

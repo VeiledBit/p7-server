@@ -8,10 +8,7 @@ const getItemsOnSale = async (req, res) => {
   const limit = 90;
   const offset = (page - 1) * limit;
   let whereClause = {};
-  let orderClause = [
-    ["id", "ASC"], // Maintain canonical order
-    ["category_id", "ASC"],
-  ];
+  let orderClause = [];
 
   if (search) {
     whereClause = {
@@ -28,19 +25,20 @@ const getItemsOnSale = async (req, res) => {
     };
   }
 
+  const sortAttributes = {
+    discountHighest: [["discount_percentage", "DESC"]],
+    discountLowest: [["discount_percentage", "ASC"]],
+    priceLowest: [["price_sale", "ASC"]],
+    priceHighest: [["price_sale", "DESC"]],
+    pricePerUnitLowest: [["price_per_unit_sale", "ASC"]],
+    pricePerUnitHighest: [["price_per_unit_sale", "DESC"]],
+    category: [
+      ["id", "ASC"], // Maintain canonical order, which is broken by LIMIT clause
+    ],
+  };
+
   if (sort) {
-    let sortAttribute;
-    if (sort === "discountHighest") {
-      sortAttribute = [["discount_percentage", "DESC"]];
-    } else if (sort === "discountLowest") {
-      sortAttribute = [["discount_percentage", "ASC"]];
-    } else if (sort === "category") {
-      sortAttribute = [
-        ["id", "ASC"],
-        ["category_id", "ASC"],
-      ];
-    }
-    orderClause = sortAttribute;
+    orderClause = sortAttributes[sort];
   }
 
   try {
