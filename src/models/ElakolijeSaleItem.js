@@ -7,6 +7,9 @@ const ElakolijeSaleItem = sequelize.define(
     store_id: {
       type: Sequelize.STRING,
     },
+    store: {
+      type: Sequelize.STRING,
+    },
     name: {
       type: Sequelize.STRING,
     },

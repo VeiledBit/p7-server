@@ -7,6 +7,9 @@ const MaxiSaleItem = sequelize.define(
     store_id: {
       type: Sequelize.STRING,
     },
+    store: {
+      type: Sequelize.STRING,
+    },
     store_url: {
       type: Sequelize.STRING,
     },
