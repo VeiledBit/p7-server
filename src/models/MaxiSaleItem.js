@@ -22,14 +22,26 @@ const MaxiSaleItem = sequelize.define(
     price_sale: {
       type: Sequelize.DECIMAL(10, 2),
     },
+    price_sale_rounded: {
+      type: Sequelize.INTEGER,
+    },
     price_regular: {
       type: Sequelize.DECIMAL(10, 2),
+    },
+    price_regular_rounded: {
+      type: Sequelize.INTEGER,
     },
     price_per_unit_sale: {
       type: Sequelize.DECIMAL(10, 2),
     },
+    price_per_unit_sale_rounded: {
+      type: Sequelize.INTEGER,
+    },
     price_per_unit_regular: {
       type: Sequelize.DECIMAL(10, 2),
+    },
+    price_per_unit_regular_rounded: {
+      type: Sequelize.INTEGER,
     },
     discount_percentage: {
       type: Sequelize.INTEGER,
