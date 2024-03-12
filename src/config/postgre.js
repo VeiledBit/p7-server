@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const { logger } = require("./winston");
 
 let sequelize;
 
@@ -10,6 +11,7 @@ if (process.env.IS_PROD == "false") {
     {
       host: process.env.POSTGRE_URL,
       dialect: "postgres",
+      logging: (msg) => logger.info(`[Postgre]|${msg}`),
     }
   );
 } else {
@@ -26,6 +28,7 @@ if (process.env.IS_PROD == "false") {
           rejectUnauthorized: false,
         },
       },
+      logging: (msg) => logger.info(`[Postgre]|${msg}`),
     }
   );
 }

@@ -4,22 +4,25 @@ const app = express();
 const server = require("http").createServer(app);
 const cors = require("cors");
 const sequelize = require("./src/config/postgre");
-const router = require('./src/routes/router');
+const router = require("./src/routes/router");
+const { logger, requestLogger } = require("./src/config/winston");
 
 const test = async () => {
   try {
     await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    logger.info("Connection to PostgreDB has been established successfully.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    logger.error("Unable to connect to the PostgreDB:", error);
   }
 };
 
 test();
 app.use(cors());
 app.use(express.json());
-app.use("/", router)
+app.use(requestLogger);
+app.use("/", router);
+
 
 server.listen(process.env.PORT, async () => {
-  console.log(`Listening at http://localhost:${process.env.PORT}`);
+  logger.info(`Listening at http://localhost:${process.env.PORT}`);
 });
