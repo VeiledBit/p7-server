@@ -4,16 +4,14 @@ const sequelize = require("../config/postgre");
 const ElakolijeSaleItem = sequelize.define(
   "elakolijeSaleItem",
   {
-    store_id: {
+    id: {
       type: Sequelize.STRING,
+      primaryKey: true,
     },
     store: {
       type: Sequelize.STRING,
     },
     name: {
-      type: Sequelize.STRING,
-    },
-    store_url: {
       type: Sequelize.STRING,
     },
     category_id: {
@@ -41,7 +39,7 @@ const ElakolijeSaleItem = sequelize.define(
       type: Sequelize.INTEGER,
     },
     price_per_unit_regular: {
-      type:Sequelize.DECIMAL(10, 2),
+      type: Sequelize.DECIMAL(10, 2),
     },
     price_per_unit_regular_rounded: {
       type: Sequelize.INTEGER,

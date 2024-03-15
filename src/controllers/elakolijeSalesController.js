@@ -1,6 +1,7 @@
 const ElakolijeSaleItem = require("../models/ElakolijeSaleItem");
 const sequelize = require("../config/postgre");
 const { Op } = require("sequelize");
+const { logger } = require("../config/winston");
 
 const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
@@ -34,7 +35,7 @@ const getItemsOnSale = async (req, res) => {
     pricePerUnitHighest: [["price_per_unit_sale", "DESC"]],
     category: [
       ["category_id", "ASC"],
-      ["id", "ASC"],
+      ["insert_order", "ASC"],
     ],
   };
 

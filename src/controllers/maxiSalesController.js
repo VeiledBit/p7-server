@@ -1,6 +1,7 @@
 const MaxiSaleItem = require("../models/MaxiSaleItem");
 const sequelize = require("../config/postgre");
 const { Op } = require("sequelize");
+const { logger } = require("../config/winston");
 
 const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
@@ -33,7 +34,7 @@ const getItemsOnSale = async (req, res) => {
     pricePerUnitLowest: [["price_per_unit_sale", "ASC"]],
     pricePerUnitHighest: [["price_per_unit_sale", "DESC"]],
     category: [
-      ["id", "ASC"], // Maintain canonical order, which is broken by LIMIT clause
+      ["insert_order", "ASC"], // Maintain canonical order, which is broken by LIMIT clause
     ],
   };
 

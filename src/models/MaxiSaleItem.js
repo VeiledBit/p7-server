@@ -4,13 +4,11 @@ const sequelize = require("../config/postgre");
 const MaxiSaleItem = sequelize.define(
   "maxiSaleItem",
   {
-    store_id: {
+    id: {
       type: Sequelize.STRING,
+      primaryKey: true,
     },
     store: {
-      type: Sequelize.STRING,
-    },
-    store_url: {
       type: Sequelize.STRING,
     },
     name: {
