@@ -1,7 +1,51 @@
 const MaxiSaleItem = require("../models/MaxiSaleItem");
-const sequelize = require("../config/postgre");
+const { sequelize } = require("../config/postgre");
 const { Op } = require("sequelize");
 const { logger } = require("../config/winston");
+const { meiliClient } = require("../config/meili");
+
+const getItemsOnSaleSE = async (req, res) => {
+  const { search, sort, categories } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 90;
+  const offset = (page - 1) * limit;
+  let filters = "";
+
+  if (categories) {
+    const categoryArray = categories.split("|");
+    filters = `category_name IN [${categoryArray
+      .map((category) => `"${category}"`)
+      .join(", ")}]`;
+  }
+
+  const sortAttributes = {
+    discountHighest: ["discount_percentage:desc"],
+    discountLowest: ["discount_percentage:asc"],
+    priceLowest: ["price_sale:asc"],
+    priceHighest: ["price_sale:desc"],
+    pricePerUnitLowest: ["price_per_unit_sale:asc"],
+    pricePerUnitHighest: ["price_per_unit_sale:desc"],
+    category: ["category_id:asc"],
+  };
+
+  if (sort) {
+    sortingOrder = sortAttributes[sort];
+  }
+
+  try {
+    const index = meiliClient.index("maxiSaleItems");
+    const results = await index.search(search, {
+      filter: filters,
+      sort: sortingOrder,
+      limit: limit,
+      offset: offset,
+    });
+    res.json(results.hits);
+  } catch (error) {
+    logger.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const getItemsOnSale = async (req, res) => {
   const { search, sort, categories } = req.query;
@@ -75,4 +119,5 @@ const getCategories = async (req, res) => {
 module.exports = {
   getCategories,
   getItemsOnSale,
+  getItemsOnSaleSE,
 };

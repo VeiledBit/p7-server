@@ -33,4 +33,16 @@ if (process.env.IS_PROD == "false") {
   );
 }
 
-module.exports = sequelize;
+const initiateDBConnection = async () => {
+  try {
+    await sequelize.authenticate();
+    logger.info("Connection to PostgreDB has been established successfully.");
+  } catch (error) {
+    logger.error("Unable to connect to the PostgreDB:", error);
+  }
+};
+
+module.exports = {
+  sequelize,
+  initiateDBConnection,
+};

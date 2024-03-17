@@ -1,5 +1,5 @@
 const { Sequelize } = require("sequelize");
-const sequelize = require("../config/postgre");
+const { sequelize } = require("../config/postgre");
 
 const ElakolijeSaleItem = sequelize.define(
   "elakolijeSaleItem",

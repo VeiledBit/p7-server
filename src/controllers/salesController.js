@@ -1,4 +1,4 @@
-const sequelize = require("../config/postgre");
+const { sequelize } = require("../config/postgre");
 
 const getItems = async (req, res) => {
   const { search, sort } = req.query;
