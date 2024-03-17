@@ -1,4 +1,52 @@
 const { sequelize } = require("../config/postgre");
+const { logger } = require("../config/winston");
+const { meiliClient } = require("../config/meili");
+
+const getItemsSE = async (req, res) => {
+  const { search, sort } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 90;
+  const offset = (page - 1) * limit;
+  const indexNames = ["maxiSaleItems", "elakolijeSaleItems"];
+  let sortingFunction = (a, b) => b.store - a.store; // Default sorting
+
+  const sortingFunctions = {
+    discountHighest: (a, b) => b.discount_percentage - a.discount_percentage,
+    discountLowest: (a, b) => a.discount_percentage - b.discount_percentage,
+    priceLowest: (a, b) => a.price_sale - b.price_sale,
+    priceHighest: (a, b) => b.price_sale - a.price_sale,
+    pricePerUnitLowest: (a, b) => a.price_per_unit_sale - b.price_per_unit_sale,
+    pricePerUnitHighest: (a, b) =>
+      b.price_per_unit_sale - a.price_per_unit_sale,
+  };
+
+  if (sort) {
+    sortingFunction = sortingFunctions[sort];
+  }
+
+  try {
+    const searches = indexNames.map((indexName) => {
+      return {
+        indexUid: indexName,
+        q: search,
+        limit: limit,
+        offset: offset,
+      };
+    });
+
+    const results = (await meiliClient.multiSearch({ queries: searches }))
+      .results;
+    const resultsReduced = results.reduce((accumulator, currentValue) => {
+      return accumulator.concat(currentValue.hits);
+    }, []);
+
+    resultsReduced.sort(sortingFunction);
+    res.json(resultsReduced);
+  } catch (error) {
+    logger.error(`${error.message}|${error.stack}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const getItems = async (req, res) => {
   const { search, sort } = req.query;
@@ -47,9 +95,9 @@ const getItems = async (req, res) => {
     logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
   }
-  res.status(200);
 };
 
 module.exports = {
   getItems,
+  getItemsSE,
 };
