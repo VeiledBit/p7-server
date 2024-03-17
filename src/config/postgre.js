@@ -38,7 +38,7 @@ const initiateDBConnection = async () => {
     await sequelize.authenticate();
     logger.info("Connection to PostgreDB has been established successfully.");
   } catch (error) {
-    logger.error("Unable to connect to the PostgreDB:", error);
+    logger.error(`Unable to connect to the PostgreDB: ${error.message}|${error.stack}`);
   }
 };
 

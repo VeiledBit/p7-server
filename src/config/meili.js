@@ -1,4 +1,5 @@
 const { MeiliSearch } = require("meilisearch");
+const { logger } = require("./winston");
 
 const meiliClient = new MeiliSearch({
   host: process.env.MEILI_HOST,
@@ -66,8 +67,9 @@ const meiliConfig = async () => {
         "category_name:asc",
         "name:asc",
       ]);
+    logger.info("All Meilisearch indexes configured successfully.");
   } catch (error) {
-    console.error(error);
+    logger.error(`${error.message}|${error.stack}`);
   }
 };
 

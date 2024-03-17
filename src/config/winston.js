@@ -9,7 +9,11 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: "logs/error.logstash.log",
       level: "error",
-      format: format.combine(format.timestamp(), format.logstash()),
+      format: format.combine(
+        format.timestamp(),
+        format.logstash(),
+        format.errors({ stack: true })
+      ),
     }),
     new winston.transports.File({
       filename: "logs/info.logstash.log",
@@ -19,7 +23,11 @@ const logger = winston.createLogger({
     new winston.transports.File({
       filename: "logs/error.json.log",
       level: "error",
-      format: format.combine(format.timestamp(), format.json()),
+      format: format.combine(
+        format.timestamp(),
+        format.json(),
+        format.errors({ stack: true })
+      ),
     }),
     new winston.transports.File({
       filename: "logs/info.json.log",
@@ -52,7 +60,7 @@ const setupMongoDB = async () => {
     logger.add(new winston.transports.MongoDB(transportOptions));
     logger.info("Connection to MongoDB has been established successfully.");
   } catch (error) {
-    logger.error("Unable to connect to the MongoDB:", error);
+    logger.error(`Unable to connect to the MongoDB: ${error.message}|${error.stack}`);
   }
 };
 

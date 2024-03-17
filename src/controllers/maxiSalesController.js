@@ -42,7 +42,7 @@ const getItemsOnSaleSE = async (req, res) => {
     });
     res.json(results.hits);
   } catch (error) {
-    logger.error(error);
+    logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -95,7 +95,7 @@ const getItemsOnSale = async (req, res) => {
     });
     res.json(saleItems);
   } catch (error) {
-    logger.error(error);
+    logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -111,7 +111,7 @@ const getCategories = async (req, res) => {
     const categoryNames = distinctCategories.map((item) => item.category_name);
     res.json(categoryNames);
   } catch (error) {
-    logger.error(error);
+    logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
   }
 };

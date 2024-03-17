@@ -44,7 +44,7 @@ const getItems = async (req, res) => {
     );
     res.json(items);
   } catch (error) {
-    logger.error(error);
+    logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
   }
   res.status(200);
