@@ -44,7 +44,7 @@ const getItemsSE = async (req, res) => {
     res.json(resultsReduced);
   } catch (error) {
     logger.error(`${error.message}|${error.stack}`);
-    res.status(500).json({ error: "Internal server error" });
+    getItems(req, res);
   }
 };
 

@@ -43,7 +43,7 @@ const getItemsOnSaleSE = async (req, res) => {
     res.json(results.hits);
   } catch (error) {
     logger.error(`${error.message}|${error.stack}`);
-    res.status(500).json({ error: "Internal server error" });
+    getItemsOnSale(req, res);
   }
 };
 
