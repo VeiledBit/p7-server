@@ -1,8 +1,35 @@
 const ElakolijeSaleItem = require("../models/ElakolijeSaleItem");
+const FavoriteItem = require("../models/FavoriteItem");
 const { sequelize } = require("../config/postgre");
 const { Op } = require("sequelize");
 const { logger } = require("../config/winston");
 const { meiliClient } = require("../config/meili");
+
+const favorite = async (req, res) => {
+  const user = req.user;
+  const userId = user.sub;
+  const itemId = req.body.itemId;
+
+  try {
+    const existingFavorite = await FavoriteItem.findOne({
+      where: {
+        user_id: userId,
+        item_id: itemId,
+      },
+    });
+
+    if (existingFavorite) {
+      await existingFavorite.destroy();
+      res.status(200).send();
+    } else {
+      await FavoriteItem.create({ user_id: userId, item_id: itemId });
+      res.status(201).send();
+    }
+  } catch (error) {
+    logger.error(`Error in favorite endpoint|${error.message}|${error.stack}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
 
 const getItemsOnSaleSE = async (req, res) => {
   const { search, sort, categories } = req.query;
@@ -40,7 +67,28 @@ const getItemsOnSaleSE = async (req, res) => {
       limit: limit,
       offset: offset,
     });
-    res.json(results.hits);
+    const partial = req.partial;
+    if (partial === false) {
+      const user = req.user;
+      const userId = user.sub;
+      const favoredItemIds = (
+        await FavoriteItem.findAll({
+          where: {
+            user_id: userId,
+            item_id: results.hits.map((item) => item.id),
+          },
+        })
+      ).map((favoredItem) => favoredItem.item_id);
+
+      const modifiedSaleItems = results.hits.map((item) => ({
+        ...item,
+        isFavored: favoredItemIds.includes(item.id),
+      }));
+
+      res.json(modifiedSaleItems);
+    } else {
+      res.json(results.hits);
+    }
   } catch (error) {
     logger.error(`${error.message}|${error.stack}`);
     getItemsOnSale(req, res);
@@ -94,7 +142,28 @@ const getItemsOnSale = async (req, res) => {
       limit: limit,
       offset: offset,
     });
-    res.json(saleItems);
+    const partial = req.partial;
+    if (partial === false) {
+      const user = req.user;
+      const userId = user.sub;
+      const favoredItemIds = (
+        await FavoriteItem.findAll({
+          where: {
+            user_id: userId,
+            item_id: saleItems.map((item) => item.id),
+          },
+        })
+      ).map((favoredItem) => favoredItem.item_id);
+
+      const modifiedSaleItems = saleItems.map((item) => ({
+        ...item.toJSON(),
+        isFavored: favoredItemIds.includes(item.id),
+      }));
+
+      res.json(modifiedSaleItems);
+    } else {
+      res.json(saleItems);
+    }
   } catch (error) {
     logger.error(`${error.message}|${error.stack}`);
     res.status(500).json({ error: "Internal server error" });
@@ -118,6 +187,7 @@ const getCategories = async (req, res) => {
 };
 
 module.exports = {
+  favorite,
   getCategories,
   getItemsOnSale,
   getItemsOnSaleSE,
