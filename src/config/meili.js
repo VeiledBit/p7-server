@@ -39,8 +39,39 @@ const meiliConfig = async () => {
       ]);
 
     await meiliClient
+      .index("lidlSaleItems")
+      .updateSearchableAttributes(["category_name", "name"]);
+
+    await meiliClient
+      .index("lidlSaleItems")
+      .updateFilterableAttributes(["category_name"]);
+
+    await meiliClient
+      .index("lidlSaleItems")
+      .updateSortableAttributes([
+        "category_id",
+        "discount_percentage",
+        "price_sale",
+        "price_per_unit_sale",
+      ]);
+
+    await meiliClient
+      .index("lidlSaleItems")
+      .updateRankingRules([
+        "words",
+        "typo",
+        "proximity",
+        "attribute",
+        "sort",
+        "exactness",
+        "category_name:asc",
+        "name:asc",
+      ]);
+
+    await meiliClient
       .index("elakolijeSaleItems")
       .updateSearchableAttributes(["category_name", "name"]);
+
     await meiliClient
       .index("elakolijeSaleItems")
       .updateFilterableAttributes(["category_name"]);
@@ -67,6 +98,7 @@ const meiliConfig = async () => {
         "category_name:asc",
         "name:asc",
       ]);
+
     logger.info("All Meilisearch indexes configured successfully.");
   } catch (error) {
     logger.error(`${error.message}|${error.stack}`);

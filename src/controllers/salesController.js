@@ -7,7 +7,7 @@ const getItemsSE = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 90;
   const offset = (page - 1) * limit;
-  const indexNames = ["maxiSaleItems", "elakolijeSaleItems"];
+  const indexNames = ["maxiSaleItems", "elakolijeSaleItems", "lidlSaleItems"];
   let sortingFunction = (a, b) => b.store - a.store; // Default sorting
 
   const sortingFunctions = {
@@ -56,7 +56,7 @@ const getItems = async (req, res) => {
   let orderClause = ["category_id", "ASC"];
 
   const sortAttributes = {
-    discountHighest: ["discount_percentage", "DESC"],
+    discountHighest: ["discount_percentage", "DESC NULLS LAST"],
     discountLowest: ["discount_percentage", "ASC"],
     priceLowest: ["price_sale", "ASC"],
     priceHighest: ["price_sale", "DESC"],
@@ -71,16 +71,22 @@ const getItems = async (req, res) => {
 
   try {
     const items = await sequelize.query(
-      `SELECT id, store, store_id, name, category_id, category_name, price_sale, price_sale_rounded, price_regular, price_regular_rounded,
+      `SELECT id, store, img_url, name, category_id, category_name, price_sale, price_sale_rounded, price_regular, price_regular_rounded,
       price_per_unit_sale, price_per_unit_sale_rounded, price_per_unit_regular, price_per_unit_regular_rounded, discount_percentage,
       unit, sale_start_date, sale_end_date, note
       FROM maxisales
       WHERE name ILIKE '%' || :search || '%'
       UNION
-      SELECT id, store, store_id, name, category_id, category_name, price_sale, price_sale_rounded, price_regular, price_regular_rounded,
+      SELECT id, store, img_url, name, category_id, category_name, price_sale, price_sale_rounded, price_regular, price_regular_rounded,
       price_per_unit_sale, price_per_unit_sale_rounded, price_per_unit_regular, price_per_unit_regular_rounded, discount_percentage,
       unit, sale_start_date, sale_end_date, '' as placeholder
       FROM elakolijesales
+      WHERE name ILIKE '%' || :search || '%'
+      UNION
+      SELECT id, store, img_url, name, category_id, category_name, price_sale, price_sale_rounded, price_regular, price_regular_rounded,
+      price_per_unit_sale, 0 as p1, price_per_unit_regular, 0 as p2, discount_percentage,
+      unit, sale_start_date, sale_end_date, '' as placeholder
+      FROM lidlsales
       WHERE name ILIKE '%' || :search || '%'
       ORDER BY ${orderClause[0]} ${orderClause[1]}
       LIMIT ${limit}
